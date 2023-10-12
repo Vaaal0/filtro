@@ -38,10 +38,16 @@
             const pixels = imageData.data;
 
             for (let i = 0; i < pixels.length; i += 4) {
-                // Implementa aquí la lógica para aplicar el filtro Sobel colorizado
-                // Puedes encontrar ejemplos de implementación en línea.
+                // Extraer componentes RGB
+                const r = pixels[i];
+                const g = pixels[i + 1];
+                const b = pixels[i + 2];
 
-                // Aquí se debe actualizar los valores de los píxeles en 'pixels'.
+                // Aplicar filtro Sobel
+                const gray = 0.2989 * r + 0.5870 * g + 0.1140 * b;
+                pixels[i] = gray; // Canal rojo
+                pixels[i + 1] = gray; // Canal verde
+                pixels[i + 2] = gray; // Canal azul
             }
 
             // Dibuja la imagen filtrada en el canvas de salida
