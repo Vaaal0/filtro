@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Filtro Sobel Colorizado en la Cámara</title>
+</head>
+<body>
+    <h1>Filtro Sobel Colorizado en la Cámara</h1>
+    <video id="video" autoplay></video>
+    <canvas id="outputCanvas" style="border: 1px solid black;"></canvas>
+
+    <script>
+        // Obtener referencias a los elementos HTML
+        const videoElement = document.getElementById('video');
+        const outputCanvas = document.getElementById('outputCanvas');
+        const outputCtx = outputCanvas.getContext('2d');
+
+        // Solicitar acceso a la cámara
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                videoElement.srcObject = stream;
+            })
+            .catch(function(error) {
+                console.error('Error al acceder a la cámara: ' + error);
+            });
+
+        // Función para aplicar el filtro Sobel colorizado a la imagen
+        function applySobelColorizedFilter() {
+            const width = videoElement.videoWidth;
+            const height = videoElement.videoHeight;
+            outputCanvas.width = width;
+            outputCanvas.height = height;
+
+            // Dibuja la imagen de la cámara en el canvas de salida
+            outputCtx.drawImage(videoElement, 0, 0, width, height);
+
+            // Obtiene los píxeles de la imagen del canvas de salida
+            const imageData = outputCtx.getImageData(0, 0, width, height);
+            const pixels = imageData.data;
+
+            for (let i = 0; i < pixels.length; i += 4) {
+                // Implementa aquí la lógica para aplicar el filtro Sobel colorizado
+                // Puedes encontrar ejemplos de implementación en línea.
+
+                // Aquí se debe actualizar los valores de los píxeles en 'pixels'.
+            }
+
+            // Dibuja la imagen filtrada en el canvas de salida
+            outputCtx.putImageData(imageData, 0, 0);
+
+            // Llama a esta función recursivamente para procesar cada fotograma
+            requestAnimationFrame(applySobelColorizedFilter);
+        }
+
+        // Iniciar la aplicación del filtro Sobel colorizado
+        videoElement.onloadedmetadata = function() {
+            requestAnimationFrame(applySobelColorizedFilter);
+        };
+    </script>
+</body>
+</html>
