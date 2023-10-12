@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Filtro Sobel en la Cámara</title>
+    <title>Filtro Sobel Colorizado en la Cámara</title>
 </head>
 <body>
-    <h1>Filtro Sobel en la Cámara</h1>
+    <h1>Filtro Sobel Colorizado en la Cámara</h1>
     <video id="video" autoplay></video>
-    <canvas id="canvas" style="display: none;"></canvas>
     <canvas id="outputCanvas" style="border: 1px solid black;"></canvas>
 
     <script>
         // Obtener referencias a los elementos HTML
         const videoElement = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
         const outputCanvas = document.getElementById('outputCanvas');
-        const ctx = canvas.getContext('2d');
         const outputCtx = outputCanvas.getContext('2d');
 
         // Solicitar acceso a la cámara
@@ -26,67 +23,43 @@
                 console.error('Error al acceder a la cámara: ' + error);
             });
 
-        // Función para aplicar el filtro Sobel a la imagen
-        function applySobelFilter() {
-            canvas.width = videoElement.videoWidth;
-            canvas.height = videoElement.videoHeight;
-            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        // Función para aplicar el filtro Sobel colorizado a la imagen
+        function applySobelColorizedFilter() {
+            const width = videoElement.videoWidth;
+            const height = videoElement.videoHeight;
+            outputCanvas.width = width;
+            outputCanvas.height = height;
 
-            // Aplicar el filtro Sobel
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            // Dibuja la imagen de la cámara en el canvas de salida
+            outputCtx.drawImage(videoElement, 0, 0, width, height);
+
+            // Obtiene los píxeles de la imagen del canvas de salida
+            const imageData = outputCtx.getImageData(0, 0, width, height);
             const pixels = imageData.data;
 
             for (let i = 0; i < pixels.length; i += 4) {
-                const x = (i / 4) % canvas.width;
-                const y = Math.floor((i / 4) / canvas.width);
+                // Extraer componentes RGB
+                const r = pixels[i];
+                const g = pixels[i + 1];
+                const b = pixels[i + 2];
 
-                if (x > 0 && x < canvas.width - 1 && y > 0 && y < canvas.height - 1) {
-                    // Matrices de Sobel para detección de bordes
-                    const sobelX = [
-                        [-1, 0, 1],
-                        [-2, 0, 2],
-                        [-1, 0, 1]
-                    ];
-
-                    const sobelY = [
-                        [-1, -2, -1],
-                        [0, 0, 0],
-                        [1, 2, 1]
-                    ];
-
-                    let gx = 0;
-                    let gy = 0;
-
-                    for (let j = -1; j <= 1; j++) {
-                        for (let k = -1; k <= 1; k++) {
-                            const pixelIndex = ((y + j) * canvas.width + (x + k)) * 4;
-                            const pixelValue = pixels[pixelIndex];
-                            gx += sobelX[j + 1][k + 1] * pixelValue;
-                            gy += sobelY[j + 1][k + 1] * pixelValue;
-                        }
-                    }
-
-                    const gradientMagnitude = Math.sqrt(gx * gx + gy * gy);
-                    pixels[i] = gradientMagnitude;
-                    pixels[i + 1] = gradientMagnitude;
-                    pixels[i + 2] = gradientMagnitude;
-                }
+                // Aplicar filtro Sobel (conversión en escala de grises)
+                const gray = 0.2989 * r + 0.5870 * g + 0.1140 * b;
+                pixels[i] = gray; // Canal rojo
+                pixels[i + 1] = gray; // Canal verde
+                pixels[i + 2] = gray; // Canal azul
             }
 
             // Dibuja la imagen filtrada en el canvas de salida
-            outputCanvas.width = canvas.width;
-            outputCanvas.height = canvas.height;
             outputCtx.putImageData(imageData, 0, 0);
 
             // Llama a esta función recursivamente para procesar cada fotograma
-            requestAnimationFrame(applySobelFilter);
+            requestAnimationFrame(applySobelColorizedFilter);
         }
 
-        // Iniciar la aplicación del filtro Sobel
+        // Iniciar la aplicación del filtro Sobel colorizado
         videoElement.onloadedmetadata = function() {
-            canvas.width = videoElement.videoWidth;
-            canvas.height = videoElement.videoHeight;
-            requestAnimationFrame(applySobelFilter);
+            requestAnimationFrame(applySobelColorizedFilter);
         };
     </script>
 </body>
